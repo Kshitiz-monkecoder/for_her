@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I'm Sorry — Sneha</title>
+  <style>
+    /* ====== base & palette ====== */
+    :root{
+      --bg1: #fff0f3;
+      --bg2: #fff6fa;
+      --accent: #ff6b81;
+      --soft: rgba(255,255,255,0.28);
+      --glass-border: rgba(255,255,255,0.45);
+      --muted: rgba(255,255,255,0.85);
+      --shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%; margin:0; font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+    body{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: radial-gradient(1200px 600px at 10% 10%, #fff8fb 0%, #ffeef2 20%, #fff1f4 40%), linear-gradient(135deg, #ffe9ef 0%, #fff5fb 100%);
+      overflow:hidden;
+      padding:32px;
+    }
+
+    /* ====== floating sparkles behind container ====== */
+    .sparkles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .sparkle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--accent));
+      opacity: 0.9;
+      border-radius: 50%;
+      filter: blur(.6px);
+      transform: translateY(0) scale(0.6);
+      animation: sparkleUp linear infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes sparkleUp {
+      0% { transform: translateY(40vh) scale(0.3); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(-40vh) scale(1.2); opacity: 0; }
+    }
+
+    /* ====== container (glass) ====== */
+    .container {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      max-width: 520px;
+      border-radius: 20px;
+      padding: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.36), rgba(255,255,255,0.22));
+      box-shadow: var(--shadow);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      overflow: hidden;
+    }
+
+    header.top {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom: 8px;
+    }
+    .logo {
+      width:46px; height:46px; border-radius:12px;
+      background:linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.15));
+      display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent);
+      box-shadow: 0 8px 20px rgba(255,107,129,0.08), inset 0 -6px 18px rgba(255,255,255,0.12);
+    }
+    .subtitle { color: pink; font-size: 13px; margin-top:2px; }
+
+    /* ====== card stack ====== */
+    .card {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      margin-top: 12px;
+      transition: transform .7s cubic-bezier(.16,.84,.44,1), opacity .45s ease;
+      transform-origin: center top;
+      box-shadow: 0 8px 30px rgba(16,24,40,0.05);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .card.active {
+      display:block;
+      animation: cardIn .6s ease both;
+    }
+    @keyframes cardIn {
+      from { transform: translateY(18px) scale(.995); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    /* heading typing area */
+    h2 {
+      margin: 6px 0 10px 0;
+      font-size: 20px;
+      color: #30242a;
+      min-height: 30px; /* reserve space for typing effect */
+      letter-spacing: .2px;
+    }
+
+    /* fancy gif */
+    .gif {
+      width: 72%;
+      max-width: 260px;
+      height: auto;
+      border-radius: 18px;
+      margin: 10px auto 16px;
+      display:block;
+      box-shadow: 0 10px 30px rgba(16,24,40,0.06);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    p { color: #3d2b32; margin:6px 0 12px; line-height:1.45; font-size:15px; }
+
+    /* ====== game box (glass mini) ====== */
+    #gameBox {
+      background: linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.14));
+      border-radius: 14px;
+      padding: 16px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      border:1px solid rgba(255,255,255,0.05);
+      margin-top: 12px;
+    }
+
+    #heart {
+      font-size: 56px;
+      cursor:pointer;
+      transition: transform .12s ease;
+      user-select:none;
+      filter: drop-shadow(0 6px 14px rgba(255,107,129,0.18));
+    }
+
+    #count { font-weight:600; color:#6b4650; }
+
+    /* ====== animated button ====== */
+    .btn {
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 18px;
+      border-radius: 14px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+      font-size:15px;
+      color:white;
+      background: linear-gradient(90deg, var(--accent), #ff95a7);
+      box-shadow: 0 8px 22px rgba(255,107,129,0.14);
+      transition: transform .18s ease, box-shadow .18s ease;
+      margin-top:14px;
+    }
+    .btn:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 18px 40px rgba(255,107,129,0.18); }
+    .btn.ghost { background: transparent; color: var(--accent); border: 1px solid rgba(255,107,129,0.12); box-shadow:none; }
+
+    /* ====== small helpers ====== */
+    .small { font-size:13px; color:#7b5964; margin-top:6px; }
+    .emoji { font-size:20px; margin-left:6px; }
+
+    /* ====== confetti particles on success ====== */
+    .confetti {
+      position: fixed;
+      left:0; top:0; width:100%; height:100%;
+      pointer-events:none; z-index: 9999;
+    }
+    .confetti .piece {
+      position:absolute;
+      width:10px; height:14px;
+      opacity:0.95;
+      transform-origin:center;
+      will-change: transform, opacity;
+    }
+
+    /* responsive */
+    @media (max-width:520px){
+      .container{ padding:18px; border-radius:16px; }
+      .gif { max-width:200px; }
+      h2 { font-size:18px; min-height: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- sparkles layer -->
+  <div class="sparkles" id="sparkles"></div>
+
+  <!-- confetti layer (for wins) -->
+  <div class="confetti" id="confetti"></div>
+
+  <div class="container" role="main" aria-labelledby="title">
+    <header class="top">
+      <div class="logo">💌</div>
+      <div>
+        <div id="title" style="font-weight:700; color:#40242a">A Note For Sneha</div>
+        <div class="subtitle">Tiny things. Big meaning. ✨</div>
+      </div>
+    </header>
+
+    <!-- CARD 1 -->
+    <section class="card active" id="card1" aria-live="polite">
+      <img class="gif" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExMGQ4NzNmYTR3eDJnbGMxbm5zYXAxcHFrdTNoMzh0YjcybnN2azIzNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/NA20f5eHUYLG32zVRR/giphy.gif" alt="sad cute gif"/>
+      <h2 data-text="Hey Sneha... I’m really sorry 💌"></h2>
+      <p>I didn’t mean to ignore you. It was the situation and I'm ashamed I made you feel less important. I care about you so deeply, you mean the world to me.</p>
+      <button class="btn" onclick="nextCard(2)">Next <span class="emoji">➡️</span></button>
+      <div class="small">Tip: tap 'Next' to continue little surprises ahead.</div>
+    </section>
+
+    <!-- CARD 2 -->
+    <section class="card" id="card2" aria-live="polite">
+      <img class="gif" src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTN0eGRlYzVmZnNkenIzdncwNmY5eHpjaGQ0NWhqZjNxNDdjanN5dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/54ICasBMt4349AzzNt/giphy.gif" alt="cute gif"/>
+      <h2 data-text="You deserve better always 💖"></h2>
+      <p>I should've been more present. Thank you for being patient and for all the warmth you bring. I will handle things more better from now on.</p>
+      <button class="btn" onclick="nextCard(3)">Next <span class="emoji">🌸</span></button>
+      <div class="small">Promise: I’ll try to be the version of me you deserve.</div>
+    </section>
+
+    <!-- CARD 3 -->
+    <section class="card" id="card3" aria-live="polite">
+      <img class="gif" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHphbWM5dDRqOWpvMmpkZW01bTVvemdnc3RtYmo1OTBubmU3dGdxcyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ythHeq4Qgx2De/giphy.gif" alt="lovely gif"/>
+      <h2 data-text="You matter so much to me 🌷"></h2>
+      <p>Every small thing about you brightens my day. Losing you would be the worst thing. I want to be better for you.</p>
+      <button class="btn" onclick="nextCard(4)">A little melody <span class="emoji">🎶</span></button>
+      <div class="small">(If I could press rewind, I’d hold your hand tighter.)</div>
+    </section>
+
+    <!-- CARD 4 (music) -->
+    <section class="card" id="card4" aria-live="polite">
+      <!-- NOTE: replace /sounds/music.mp3 with your hosted mp3 path -->
+      <audio id="bgm" src="/sounds/music.mp3" preload="auto"></audio>
+
+      <img class="gif" src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExY21xaThmb2U1Z3kwNDMyM3l2cnlzMGcyYWZyem8zeTY1NXVkdTNkaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XaikVL6qbrJSJoQmCR/giphy.gif" alt="music gif"/>
+      <h2 data-text="A small melody for you 🎵"></h2>
+      <p>O Pagli O Pagli, it reminded me of you…
+ adorable, crazy enough, and somehow always stuck in my head.</p>
+
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+        <button class="btn" onclick="toggleMusic(this)">Play / Pause <span class="emoji">▶️</span></button>
+        <button class="btn ghost" onclick="nextCard(5)">Skip <span class="emoji">⏭️</span></button>
+      </div>
+    </section>
+
+    <!-- CARD 5 (upgraded mini-game) -->
+    <section class="card" id="card5" aria-live="polite">
+      <h2 data-text="Mini Game 🎮"></h2>
+      <p>Tap the heart 5 times each tap creates a sparkle. On 5 taps, a surprise message appears ✨</p>
+      <div id="gameBox">
+        <div id="heart">❤️</div>
+        <p id="count">0 / 5</p>
+        <button class="btn ghost" onclick="resetGame()">Reset</button>
+      </div>
+      <div class="small">Hint: try tapping quickly for a shower of sparkles.</div>
+    </section>
+
+    <!-- CARD 6 (final) -->
+    <section class="card" id="card6" aria-live="polite">
+      <img class="gif" src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" alt="final gif"/>
+      <h2 data-text="From my heart to yours 💞"></h2>
+      <p>I’m truly sorry. I never want to hurt you. You are important and precious to me also I promise sneha I’ll keep trying to be better always only for you my betu.</p>
+      <p style="margin-top:10px; font-weight:600; color:#5c3942;">With all my affection</p>
+      <button class="btn" onclick="nextCard(1)">Start Again <span class="emoji">🔁</span></button>
+    </section>
+
+  </div>
+
+  <script>
+    /* ====== typing effect for headings (Option A) ======
+       Each h2 has data-text attribute; we type only the headings.
+    */
+    function typeHeading(el, speed = 28) {
+      const text = el.getAttribute('data-text') || '';
+      el.textContent = '';
+      let i = 0;
+      function tick(){
+        if(i <= text.length){
+          el.textContent = text.slice(0, i) + (i % 2 === 0 ? '|' : '');
+          i++;
+          el._timer = setTimeout(tick, speed);
+        } else {
+          el.textContent = text; // finalize
+        }
+      }
+      clearTimeout(el._timer);
+      tick();
+    }
+
+    // run typing when card becomes active
+    function nextCard(num){
+      // hide others
+      document.querySelectorAll('.card').forEach(c => {
+        c.classList.remove('active');
+      });
+      const target = document.getElementById('card' + num);
+      target.classList.add('active');
+
+      // type heading in this active card
+      const heading = target.querySelector('h2');
+      if(heading) typeHeading(heading, 28);
+
+      // small accessibility: focus start of container
+      setTimeout(() => target.scrollIntoView({behavior:'smooth', block:'center'}), 120);
+    }
+
+    // initial typing for first card
+    document.addEventListener('DOMContentLoaded', () => {
+      // create sparkles
+      spawnSparkles(28);
+      // type first card heading
+      const first = document.querySelector('#card1 h2');
+      if(first) typeHeading(first, 28);
+    });
+
+    /* ====== music controls ====== */
+    function toggleMusic(btn){
+      const a = document.getElementById('bgm');
+      if(!a) return;
+      if(a.paused){ a.play().catch(()=>{}); btn.querySelector('.emoji').textContent = '⏸️'; }
+      else { a.pause(); btn.querySelector('.emoji').textContent = '▶️'; }
+    }
+
+    /* ====== improved mini-game: tap heart 5 times, spawn sparkles & confetti on success ====== */
+    let taps = 0;
+    const heart = document.getElementById('heart');
+    const countText = document.getElementById('count');
+
+    function spawnSpark(x,y, color){
+      const s = document.createElement('div');
+      s.className = 'sparkle';
+      s.style.left = (x - 3) + 'px';
+      s.style.top = (y - 3) + 'px';
+      s.style.width = (6 + Math.random()*8) + 'px';
+      s.style.height = (6 + Math.random()*8) + 'px';
+      s.style.background = `radial-gradient(circle at 30% 30%, #fff, ${color || '#ff9fb0'})`;
+      s.style.opacity = 1;
+      s.style.animationDuration = (1200 + Math.random()*1200) + 'ms';
+      document.body.appendChild(s);
+      setTimeout(()=> s.remove(), 1600);
+    }
+
+    heart && heart.addEventListener('click', (e) => {
+      taps++;
+      const scale = 1 + taps * 0.06;
+      heart.style.transform = `scale(${scale})`;
+      countText.innerText = `${taps} / 5`;
+      // local sparkle
+      const rect = heart.getBoundingClientRect();
+      spawnSpark(rect.left + rect.width/2 + (Math.random()*40-20), rect.top + rect.height/2 + (Math.random()*40-20), '#ff8aa0');
+
+      // small pulse
+      heart.animate([{transform:`scale(${scale})`},{transform:`scale(${Math.max(1, scale-0.05)})`}], {duration:160, easing:'ease-out'});
+
+      if(taps >= 5){
+        // celebration: confetti + reveal next after a beat
+        burstConfetti(28);
+        setTimeout(()=> {
+          nextCard(6);
+          taps = 0; countText.innerText = '0 / 5';
+        }, 900);
+      }
+    });
+
+    function resetGame(){ taps = 0; countText.innerText = '0 / 5'; heart.style.transform = 'scale(1)'; }
+
+    /* ====== confetti ====== */
+    function burstConfetti(amount=30){
+      const wrap = document.getElementById('confetti');
+      for(let i=0;i<amount;i++){
+        const piece = document.createElement('div');
+        piece.className = 'piece';
+        piece.style.left = (50 + (Math.random()*60-30)) + '%';
+        piece.style.top = '-5%';
+        piece.style.background = ['#ff6b81','#ffd6e8','#ffc1d3','#ff9fb0','#fff1f4'][Math.floor(Math.random()*5)];
+        piece.style.transform = `rotate(${Math.random()*360}deg)`;
+        piece.style.opacity = 1;
+        wrap.appendChild(piece);
+        // animate
+        const dx = (Math.random()*120 - 60);
+        const dur = 1200 + Math.random()*1000;
+        piece.animate([
+          { transform: `translate3d(0,0,0) rotate(${Math.random()*360}deg)`, opacity: 1 },
+          { transform: `translate3d(${dx}px, ${600 + Math.random()*200}px, 0) rotate(${Math.random()*720}deg)`, opacity: 0.1 }
+        ], { duration: dur, easing: 'cubic-bezier(.2,.8,.2,1)'});
+        setTimeout(()=> piece.remove(), dur + 60);
+      }
+    }
+
+    /* ====== sparkles behind container (random positions) ====== */
+    function spawnSparkles(count = 20){
+      const container = document.getElementById('sparkles');
+      for(let i=0;i<count;i++){
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        const left = Math.random()*100;
+        const top = 65 + Math.random()*35; // mostly bottom-to-top flow
+        s.style.left = left + 'vw';
+        s.style.top = top + 'vh';
+        s.style.opacity = Math.random()*0.9;
+        s.style.width = (4 + Math.random()*8) + 'px';
+        s.style.height = s.style.width;
+        s.style.animationDuration = (5000 + Math.random()*7000) + 'ms';
+        s.style.animationDelay = (Math.random()*2000) + 'ms';
+        s.style.background = `radial-gradient(circle at 30% 30%, #fff, rgba(255,107,129,${0.7+Math.random()*0.2}))`;
+        container.appendChild(s);
+        // remove occasionally and respawn
+        setInterval(()=> {
+          s.style.left = Math.random()*100 + 'vw';
+          s.style.top = 75 + Math.random()*30 + 'vh';
+        }, 5000 + Math.random()*5000);
+      }
+    }
+
+    /* ====== IMPORTANT: YouTube audio note ======
+       Browsers don't allow using a YouTube page as an audio src.
+       To use background music reliably:
+       1) Put an MP3 at /sounds/music.mp3 in your project's public folder
+       2) Or use a direct MP3 URL (absolute) for <audio src="https://.../song.mp3">
+       3) Autoplay is often blocked — use user interaction (click) to start playback (we toggle on button click).
+    */
+
+    /* accessibility: allow keyboard to advance */
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'ArrowRight') {
+        const active = document.querySelector('.card.active');
+        const next = active && active.nextElementSibling && active.nextElementSibling.classList.contains('card') ? active.nextElementSibling : null;
+        if(next) nextCard(Array.from(document.querySelectorAll('.card')).indexOf(next) + 1);
+      }
+    });
+  </script>
+</body>
+</html>
